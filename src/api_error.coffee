@@ -1,9 +1,9 @@
 # Information about a failed call to the Dropbox API.
 class Dropbox.ApiError
-  # @property {Number} the HTTP error code (e.g., 403)
-  #
   # This number should be compared against the constants defined on
   # {Dropbox.ApiError}.
+  #
+  # @property {Number} the HTTP error code (e.g., 403)
   status: null
 
   # @property {String} the HTTP method of the failed request (e.g., 'GET')
@@ -36,7 +36,7 @@ class Dropbox.ApiError
 
   # Status value indicating an invalid input parameter.
   #
-  # The error property on {Dropbox.ApiError#response} should indicate which
+  # The error property on ```Dropbox.ApiError.response``` should indicate which
   # input parameter is invalid and why.
   @INVALID_PARAM: 400
 
@@ -45,9 +45,10 @@ class Dropbox.ApiError
   # The OAuth token used for the request will never become valid again, so the
   # user should be re-authenticated.
   #
-  # The {Dropbox.Client#authStep} property of the client used to make the API
-  # call will automatically transition from {Dropbox.Client.DONE} to
-  # {Dropbox.Client.ERROR} when this error is received.
+  # The ```authStep``` property of the {Dropbox.Client} used to make
+  # the API call will automatically transition from
+  # ```Dropbox.Client.DONE``` to ```Dropbox.Client.ERROR``` when this
+  # error is received.
   @INVALID_TOKEN: 401
 
   # Status value indicating a malformed OAuth request.

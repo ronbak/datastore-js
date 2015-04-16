@@ -33,7 +33,7 @@ class Dropbox.AuthDriver
   # Redirects users to /authorize and waits for them to get redirected back.
   #
   # This method is called when the OAuth 2 process reaches the
-  # {Dropbox.Client.PARAM_SET} step, meaning that the user must be shown an
+  # ```Dropbox.Client.PARAM_SET``` step, meaning that the user must be shown an
   # /authorize page on the Dropbox servers, and the application must intercept
   # a redirect from that page. The redirect URL contains an OAuth 2
   # authorization code or access token.
@@ -82,7 +82,7 @@ class Dropbox.AuthDriver
   # (optional) Called to process the /authorize redirect.
   #
   # This method is called when the OAuth 2 process reaches the
-  # {Dropbox.Client.PARAM_LOADED} step, meaning that an OAuth 2 state parameter
+  # ```Dropbox.Client.PARAM_LOADED``` step, meaning that an OAuth 2 state parameter
   # value was loaded when the Dropbox.Client object was constructed, or during
   # a {Dropbox.Client#setCredentials} call. This means that
   # {Dropbox.AuthDriver#doAuthorize} was called earlier, saved that state

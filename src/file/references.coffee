@@ -27,7 +27,6 @@ class Dropbox.File.ShareUrl
 
   # @property {Boolean} true if this is a direct download URL, false for URLs
   #   to preview pages in the Dropbox web app; folders cannot have direct links
-  #
   isDirect: null
 
   # @property {Boolean} true if this is URL points to a file's preview page in

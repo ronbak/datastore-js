@@ -8,11 +8,16 @@ importScripts '../../../node_modules/sinon-chai/lib/sinon-chai.js'
 importScripts '../../../node_modules/mocha/mocha.js'
 importScripts '../../../test/js/helpers/browser_mocha_setup.js'
 
+importScripts '../../../test/js/helpers/datastore/action_gen.js'
+importScripts '../../../test/js/helpers/datastore/merge_test_util.js'
+importScripts '../../../test/js/helpers/datastore/resolver_util.js'
+
 importScripts '../../../test/token/token.worker.js'
 importScripts '../../../test/vendor/favicon.worker.js'
 importScripts '../../../test/js/helpers/setup.js'
 
 importScripts '../../../test/js/client_test.js'
+importScripts '../../../test/js/datastore/client_datastore_test.js'
 # NOTE: not loading the auth driver tests, no driver works in a Web Worker.
 importScripts '../../../test/js/fast/account_info_test.js'
 importScripts '../../../test/js/fast/api_error_test.js'

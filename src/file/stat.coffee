@@ -36,11 +36,13 @@ class Dropbox.File.Stat
   #   that returns deleted items
   isRemoved: null
 
-  # @property {String} name of an icon in Dropbox's icon library that most
-  #   accurately represents this file or folder
+  # name of an icon in Dropbox's icon library that most accurately
+  # represents this file or folder.
   #
   # See the {https://www.dropbox.com/developers/reference/api#metadata
-  # Dropbox REST API documentation} to obtain the Dropbox icon library.
+  # Dropbox REST API documentation} to obtain the Dropbox icon library
+  #
+  # @property {String}
   typeIcon: null
 
   # @property {String} an identifier for the contents of the described file or
@@ -49,11 +51,13 @@ class Dropbox.File.Stat
   #   folder contents twice
   versionTag: null
 
-  # @property {String} a hash over the folder's contents; this can be used to
-  #   save bandwidth when repeatedly reading a directory's content
+  # A hash over the folder's contents; this can be used to save
+  # bandwidth when repeatedly reading a directory's content.
   #
   # @see Dropbox.Client#stat
   # @see Dropbox.Client#readdir
+  #
+  # @property {String}
   contentHash: null
 
   # @property {String} a guess of the MIME type representing the file or

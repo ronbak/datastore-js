@@ -1,4 +1,6 @@
 # Represents a user accessing the application.
+#
+# @include Dropbox.DatastoresClient
 class Dropbox.Client
   # Dropbox API client representing an user or an application.
   #
@@ -10,7 +12,7 @@ class Dropbox.Client
   #   in to create a {Dropbox.Client} instance for the same user
   # @option options {String} key the Dropbox application's key (client
   #   identifier, in OAuth 2.0 vocabulary)
-  # @option options {String} secret the Dropbox application's secret (client
+  # @option options {String} secret (optional) the Dropbox application's secret (client
   #   secret, in OAuth 2.0 vocabulary); browser-side applications should not
   #   use this option
   # @option options {String} token (optional) the user's OAuth 2.0 access token
@@ -39,6 +41,8 @@ class Dropbox.Client
     @_driver = null
     @authError = null
     @_credentials = null
+
+    @_datastoreManager = null
 
     @setupUrls()
 
@@ -99,7 +103,7 @@ class Dropbox.Client
   # authorization server on the Dropbox servers. If the user clicks "Allow",
   # the application will be authorized. If the user clicks "Deny", the method
   # will pass a {Dropbox.AuthError} to its callback, and the error's code will
-  # be {Dropbox.AuthError.ACCESS_DENIED}.
+  # be ```Dropbox.AuthError.ACCESS_DENIED```.
   #
   # @param {Object} options (optional) one or more of the options below
   # @option options {Boolean} interactive if false, the authentication process
@@ -613,8 +617,8 @@ class Dropbox.Client
   # @option options {String} contentHash used for saving bandwidth when getting
   #   a folder's contents; if this value is specified and it matches the
   #   folder's contents, the call will fail with a
-  #   {Dropbox.ApiError.NO_CONTENT} error status; a folder's version identifier
-  #   can be obtained from the {Dropbox.File.Stat#contentHash} property of the
+  #   ```Dropbox.ApiError.NO_CONTENT``` error status; a folder's version identifier
+  #   can be obtained from the ```contentHash``` property of the
   #   Stat instance describing the folder
   # @option options {String} hash alias for "contentHash" that matches the HTTP
   #   API
@@ -691,8 +695,8 @@ class Dropbox.Client
   # @option options {String} contentHash used for saving bandwidth when getting
   #   a folder's contents; if this value is specified and it matches the
   #   folder's contents, the call will fail with a
-  #   {Dropbox.ApiError.NO_CONTENT} error status; a folder's version identifier
-  #   can be obtained from the {Dropbox.File.Stat#contentHash} property of the
+  #   ```Dropbox.ApiError.NO_CONTENT``` error status; a folder's version identifier
+  #   can be obtained from the ```contentHash``` property of the
   #   Stat instance describing the folder
   # @option options {Boolean} httpCache if true, the API request will be set to
   #   allow HTTP caching to work; by default, requests are set up to avoid
@@ -1194,10 +1198,6 @@ class Dropbox.Client
   #   or folder created by the copy operation, and the first parameter is null
   # @return {XMLHttpRequest} the XHR object used for this API call
   copy: (from, toPath, callback) ->
-    if (not callback) and (typeof options is 'function')
-      callback = options
-      options = null
-
     params = { root: 'auto', to_path: @_normalizePath(toPath) }
     if from instanceof Dropbox.File.CopyReference
       params.from_copy_ref = from.tag
@@ -1223,10 +1223,6 @@ class Dropbox.Client
   #   moved file or folder at its new location, and the first parameter is null
   # @return {XMLHttpRequest} the XHR object used for this API call
   move: (fromPath, toPath, callback) ->
-    if (not callback) and (typeof options is 'function')
-      callback = options
-      options = null
-
     xhr = new Dropbox.Util.Xhr 'POST', @_urls.fileopsMove
     xhr.setParams(
         root: 'auto', from_path: @_normalizePath(fromPath),
@@ -1240,7 +1236,7 @@ class Dropbox.Client
   # authorize page, in a machine-friendly format. It is intended to be used in
   # IDEs and debugging.
   #
-  # @param {String} (optional) appKey the App key of the application whose
+  # @param {String} appKey (optional) the App key of the application whose
   #   information will be retrieved; if not given, the App key passed to this
   #   Client will be used instead
   # @param {function(Dropbox.ApiError, Dropbox.Http.AppInfo)} callback called
@@ -1417,6 +1413,17 @@ class Dropbox.Client
       appsCheckDeveloper: "#{@_apiServer}/1/apps/check_developer"
       appsCheckRedirectUri: "#{@_apiServer}/1/apps/check_redirect_uri"
 
+      # Datastore operations.
+      getDb: "#{@_apiServer}/1/datastores/get_datastore"
+      getOrCreateDb: "#{@_apiServer}/1/datastores/get_or_create_datastore"
+      createDb: "#{@_apiServer}/1/datastores/create_datastore"
+      listDbs: "#{@_apiServer}/1/datastores/list_datastores"
+      deleteDb: "#{@_apiServer}/1/datastores/delete_datastore"
+      getSnapshot: "#{@_apiServer}/1/datastores/get_snapshot"
+      getDeltas: "#{@_apiServer}/1/datastores/get_deltas"
+      putDelta: "#{@_apiServer}/1/datastores/put_delta"
+      datastoreAwait: "#{@_apiServer}/1/datastores/await"
+    @
 
   # Chooses an API server that will be used by this client.
   #
@@ -1429,11 +1436,11 @@ class Dropbox.Client
     serverId = if serverNumber is 0 then '' else serverNumber.toString()
     @_serverRoot.replace '$', serverId
 
-  # @property {Number} the client's progress in the authentication process
-  #
   # This property is intended to be used by OAuth drivers.
   # {Dropbox.Client#isAuthenticated} is a better method of checking whether a
   # client can be used to perform API calls.
+  #
+  # @property {Number} the client's progress in the authentication process
   #
   # @see Dropbox.Client#isAuthenticated
   authStep: null
@@ -1524,6 +1531,20 @@ class Dropbox.Client
         error = new Dropbox.AuthError error.response
       callback error, data
 
+  # Prepares and sends a long-poll XHR to the Dropbox API server.
+  # Identical to dispatchXhr, with a different expected_time
+  #
+  # @private
+  # This is a low-level method called by other client methods.
+  #
+  # @param {Dropbox.Util.Xhr} xhr wrapper for the XHR to be sent
+  # @param {function(Dropbox.ApiError, Object)} callback called with the
+  #   outcome of the XHR
+  # @param {Number} expected_time how long the XHR is expected to take
+  # @return {XMLHttpRequest} the native XHR object used to make the request
+  _dispatchLongPollXhr: (xhr, callback, expected_time=60000) ->
+    @_dispatchXhr xhr, callback, expected_time
+
   # Prepares and sends an XHR to the Dropbox API server.
   #
   # @private
@@ -1532,9 +1553,15 @@ class Dropbox.Client
   # @param {Dropbox.Util.Xhr} xhr wrapper for the XHR to be sent
   # @param {function(Dropbox.ApiError, Object)} callback called with the
   #   outcome of the XHR
+  # @param {Number} expected_time how long the XHR is expected to take
   # @return {XMLHttpRequest} the native XHR object used to make the request
-  _dispatchXhr: (xhr, callback) ->
-    xhr.setCallback callback
+  _dispatchXhr: (xhr, callback, expected_time=10000) ->
+    long_request_timer = setTimeout (=> @_handleLongRequest xhr), 2*expected_time
+
+    xhr.setCallback (error, data, metadata, headers) =>
+      clearTimeout long_request_timer
+      callback error, data, metadata, headers
+
     xhr.onError = @_xhrOnErrorHandler
     xhr.prepare()
     nativeXhr = xhr.xhr
@@ -1566,6 +1593,16 @@ class Dropbox.Client
     @onError.dispatch error
     callback error
     return
+
+  # Called when an XHR takes too long
+  #
+  # @private
+  # This is a low-level method used as a timed callback by dispatchXhr
+  #
+  # @param {Dropbox.Util.Xhr} xhr The XHR that caused the error.
+  # @return {null}
+  _handleLongRequest: (xhr) ->
+    @setupUrls() # Randomizes the choice of API server
 
   # @private
   # @return {String} the default value for the "server" option

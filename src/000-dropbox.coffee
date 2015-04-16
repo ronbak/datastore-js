@@ -1,3 +1,7 @@
+# @private (not actually private, but we want to suppress it from the
+# docs because it would shows up as .Dropbox rather than Dropbox).
+# HACK(dropbox)
+#
 # This will be a shorthand for the main class in the high-level Dropbox API.
 #
 # For now, it only serves as the dropbox.js namespace.

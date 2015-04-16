@@ -156,7 +156,7 @@ class Dropbox.Util.Xhr
   # will receive a {Dropbox.ApiError} instance as its first argument. The
   # function is responsible for calling its 2nd argument and passing it the
   # {Dropbox.ApiError}. If the function does not do that, the callback passed
-  # to {Dropbox.Util.Xhr#send} or {Dropbox.Util.Xhr#} will not be called
+  # to {Dropbox.Util.Xhr#send} or {Dropbox.Util.Xhr#setCallback} will not be called
   #
   # @property {function(Dropbox.ApiError, function(Dropbox.ApiError))}
   onError: null

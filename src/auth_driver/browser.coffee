@@ -37,7 +37,7 @@ class Dropbox.AuthDriver.BrowserBase
 
   # Persists tokens.
   #
-  # @see Dropbox.AuthDriver#onAuthStepChange
+  # @see Dropbox.Client#onAuthStepChange
   onAuthStepChange: (client, callback) ->
     @setStorageKey client
 
