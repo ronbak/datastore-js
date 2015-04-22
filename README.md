@@ -1,3 +1,12 @@
+# NOTE about this fork
+
+This fork of [dropbox/dropbox-js](https://github.com/dropbox/dropbox-js) adds
+support for the (deprecated) Datastore API in a branch called `datastore`. The
+purpose of publishing this code is to share a reference implementation of the
+merging strategy used by the Datastore API. For details, read
+"[Deprecating the Sync and Datsatore APIs](https://blogs.dropbox.com/developers/2015/04/deprecating-the-sync-and-datastore-apis)"
+on the Dropbox developer blog.
+
 # Client Library for the Dropbox API
 
 This is a JavaScript client library for the Dropbox API,
