@@ -444,7 +444,7 @@ class Dropbox.Util.Xhr
       @xhr.onload = => @onXdrLoad()
       @xhr.onerror = => @onXdrError()
       @xhr.ontimeout = => @onXdrError()
-      # NOTE: there are reports that XHR somtimes fails if onprogress doesn't
+      # NOTE: there are reports that XHR sometimes fails if onprogress doesn't
       #       have any handler
       @xhr.onprogress = ->
     else
