@@ -33,7 +33,7 @@ out as described above.
 ### Dropbox.AuthDriver.Popup
 
 This driver may be useful for browser applications that can't handle the
-redirections peformed by `Dropbox.AuthDriver.Redirect`. This driver avoids
+redirections performed by `Dropbox.AuthDriver.Redirect`. This driver avoids
 changing the location of the application's browser window by popping up a
 separate window, and loading the Dropbox authorization page in that window.
 
