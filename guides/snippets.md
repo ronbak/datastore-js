@@ -74,7 +74,7 @@ fs.readFile("some_image.png", function(error, data) {
     if (error) {
       return handleError(error);
     }
-    // The image has been succesfully written.
+    // The image has been successfully written.
   });
 });
 ```
